@@ -1,0 +1,14 @@
+name: DB Check
+on: push
+jobs:
+  DB_heck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperer le code
+        uses: actions/checkout@v4
+      - name: préparer la base de données
+        uses: bash db/setup.sh
+      - name: afficher les étudiants
+        run: | 
+          PGPASSWORD=postgres psql -h localhost -U postgres -d tp -c "SELECT * FROM students;"
+
