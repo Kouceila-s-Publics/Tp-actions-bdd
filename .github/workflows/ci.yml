@@ -1,9 +1,8 @@
 
-name: CI Python
+name: CI Multi-Langages
 
 on:
   push:
-    branches: [main]
   pull_request:
 
 jobs:
@@ -11,19 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Récupérer le code
+        uses: actions/checkout@v4
 
-      - name: Setup database
+      - name: Préparer la base de données
         run: bash db/setup.sh
 
-      - uses: actions/setup-python@v5
+      - name: Installer Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Installer les dépendances
         run: pip install -r requirements.txt
         working-directory: python-app
 
-      - name: Run tests
+      - name: Exécuter les tests
         run: pytest -v
         working-directory: python-app
