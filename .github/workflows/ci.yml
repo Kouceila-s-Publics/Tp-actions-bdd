@@ -1,4 +1,3 @@
-
 name: CI Multi-Langages
 
 on:
@@ -8,6 +7,10 @@ on:
 jobs:
   python:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
 
     steps:
       - name: Récupérer le code
@@ -19,7 +22,7 @@ jobs:
       - name: Installer Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Installer les dépendances
         run: pip install -r requirements.txt
@@ -28,6 +31,7 @@ jobs:
       - name: Exécuter les tests
         run: pytest -v
         working-directory: python-app
+
   node:
     runs-on: ubuntu-latest
 
@@ -50,6 +54,7 @@ jobs:
       - name: Exécuter les tests
         run: npm test
         working-directory: node-app
+
   java:
     runs-on: ubuntu-latest
 
@@ -69,6 +74,7 @@ jobs:
       - name: Exécuter les tests
         run: mvn -B package
         working-directory: java-app
+
   php:
     runs-on: ubuntu-latest
 
@@ -92,3 +98,25 @@ jobs:
       - name: Exécuter les tests
         run: vendor/bin/phpunit tests
         working-directory: php-app
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [python, node, java, php]
+
+    steps:
+      - name: Build terminé
+        run: echo "Tous les tests ont réussi ! Build terminé."
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Déploiement
+        run: echo "Déploiement en cours"
+
+      - name: Vérifier le secret
+        env:
+          TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: test -n "$TOKEN" && echo "Token présent"
